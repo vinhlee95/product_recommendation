@@ -137,13 +137,13 @@ def find_top_3_products(question: str):
 
 # Create a list to store message objects
 message_objects = []
+top_3_products = None
 
 while True:
   # Prompt the user for input
-  print("Please tell me what you are looking for? For example your skin condition or budget.")
+  # print("Please tell me what you are looking for? For example your skin condition or budget.")
 
   question = input(">> ")
-
 
   # Add a system message to set the assistant's behavior
   message_objects.append({
@@ -151,29 +151,29 @@ while True:
      "content": """
         You're a chatbot helping customers with beauty-related questions and providing product recommendations. 
         You should only recommend the product that is recommended by system input and do not invent something on your own.
-        The final answer should only contain: the brand name, price, rating, reviews, and 1-line description of the product.
+        The final answer should contain: the brand name, price, rating, reviews.
+        If customers have follow-up question, you should stick to the original recommended product, but you don't need to provide price or other characteristics of that product.
         """
     })
 
   # Add the user's initial message
   message_objects.append({"role": "user", "content": question})
 
-  # Add an assistant message
-  message_objects.append({"role": "assistant", "content": "I found these 3 products I would recommend"})
+  # Check if the top 3 products have been found
+  if top_3_products is None or top_3_products.empty:
+    top_3_products = find_top_3_products(question)
 
-  top_3_products = find_top_3_products(question)
-
-  # Add the top 3 product recommendations to message_objects as assistant messages
-  for index, row in top_3_products.iterrows():
-      brand_dict = {'role': "system", "content": f"This is a recommended product that you will be using in the answer: {row['combined']}"}
-      message_objects.append(brand_dict)
-
-  message_objects.append({"role": "assistant", "content": "Here's my summarized recommendation of products, and why they would suit you:"})
+    # Add the top 3 product recommendations to message_objects as assistant messages
+    for index, row in top_3_products.iterrows():
+        brand_dict = {'role': "system", "content": f"This is a recommended product that you will be using in the answer: {row['combined']}"}
+        message_objects.append(brand_dict)
 
   completion = client.chat.completions.create(
     messages=message_objects,
     model="gpt-3.5-turbo"
   )
+
+  message_objects.append({"role": "assistant", "content": completion.choices[0].message.content})
 
   print(completion.choices[0].message.content)
 
