@@ -1,12 +1,11 @@
 from pinecone.grpc import PineconeGRPC as Pinecone
 import os
 import pandas as pd
+from openai import embeddings
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index_name = "products"
 product_index = pc.Index(index_name)
-print(product_index)
-
 
 # Load the dataset
 product_data = [
@@ -32,3 +31,40 @@ product_data = [
   {"id": 20, "category": "smartphone", "reviews": 1000, "rating": 4.9, "name": "Xiaomi Redmi Note 10 Pro", "price": 279.99, "brand": "Xiaomi", "model": "Redmi Note 10 Pro", "description": "Budget phone with Snapdragon 732G"}
 ]
 
+# Add product data to dataframe
+product_data_df = pd.DataFrame(product_data)
+
+# Create column with combined data
+product_data_df['combined'] = product_data_df.apply(lambda row: f"{row['category']}, {row['name']}, {row['brand']}, {row['model']}, {row['description']}", axis=1)
+
+def get_embedding(text):
+  response = embeddings.create(
+    model="text-embedding-3-small",
+    input=[text],
+  )
+  return response.data[0].embedding
+
+# Generate embeddings for each product
+product_data_df['embedding'] = product_data_df['combined'].apply(lambda x: get_embedding(x))
+
+# Prepare data for upsert
+vectors = [
+  {
+    "id": str(row['id']),
+    "values": row['embedding'],
+    "metadata": {
+      "category": row['category'],
+      "name": row['name'],
+      "price": row['price'],
+      "brand": row['brand'],
+      "model": row['model'],
+      "description": row['description'],
+      "reviews": row['reviews'],
+      "rating": row['rating']
+    }
+  }
+  for _, row in product_data_df.iterrows()
+]
+
+# Upsert data into Pinecone index
+product_index.upsert(vectors)
