@@ -42,7 +42,7 @@ product_data_df['combined'] = product_data_df.apply(lambda row: f"{row['brand']}
 # Create embeddings
 def get_embedding(text):
   response = embeddings.create(
-    model="text-embedding-ada-002",
+    model="text-embedding-3-small",
     input=[text],
   )
 
@@ -59,7 +59,7 @@ def cosine_similarity(a, b):
 def find_top_3_products(question: str):
    # Generate embedding for the user input
   response = embeddings.create(
-      model="text-embedding-ada-002",
+      model="text-embedding-3-small",
       input=[question],
   )
   embedded_input = response.data[0].embedding
