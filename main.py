@@ -33,11 +33,11 @@ while True:
 
   # Check if the top 3 products have been found
   if top_products is None or len(top_products) == 0:
-    top_products = find_products_by_query(question)
+    top_products = find_products_by_query(question=question, top_count=3)
 
     # Add the top 3 product recommendations to message_objects as assistant messages
     for product in top_products:
-        brand_dict = {'role': "system", "content": f"This is a recommended product that you will be using in the answer: {product}"}
+        brand_dict = {'role': "system", "content": f"This is 1 of the recommended product that you will be using in the answer: {product}"}
         message_objects.append(brand_dict)
 
   completion = client.chat.completions.create(
