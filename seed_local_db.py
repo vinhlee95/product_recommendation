@@ -68,3 +68,5 @@ vectors = [
 
 # Upsert data into Pinecone index
 product_index.upsert(vectors)
+
+print("Product data upserted successfully!")
