@@ -27,12 +27,17 @@ def find_products_by_query(question: str, top_count: int = 1, relevance_threshol
   vector = get_embedding(question)
   results = product_index.query(
     vector=vector,
+    filter={
+      "brand": "Apple"
+    },
     top_k=top_count,
     include_values=True,
     include_metadata=True
   )
 
   print(f"Found {len(results['matches'])} matching products")
+  
+  return [item['metadata'] for item in results['matches']]
 
   # Filter results based on relevance threshold
   # relevant_products = [
@@ -40,4 +45,6 @@ def find_products_by_query(question: str, top_count: int = 1, relevance_threshol
   #   if cosine_similarity(vector, item['values']) >= relevance_threshold
   # ]
 
-  return [item['metadata'] for item in results['matches']]
+  # print(f"Found {len(relevant_products)} relevant products")
+
+  # return relevant_products

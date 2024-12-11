@@ -27,10 +27,13 @@ questions = [
   }
 ]
 
+DEFAULT_MIN_PRICE = 0
+DEFAULT_MAX_PRICE = float('inf')
+
 asked_question_indexes = []
-min_price = 0
+min_price = DEFAULT_MIN_PRICE
 # Max price is infinity
-max_price = float("inf")
+max_price = DEFAULT_MAX_PRICE
 
 def extract_budget_range(input_text: str):
   match = re.search(r'from (\d+) to (\d+)', input_text)
@@ -39,7 +42,7 @@ def extract_budget_range(input_text: str):
     max_price = float(match.group(2))
     return min_price, max_price
   else:
-      return None, None
+      return DEFAULT_MIN_PRICE, DEFAULT_MAX_PRICE
 
 
 def recommend_product() -> str:
@@ -50,6 +53,7 @@ def recommend_product() -> str:
       You're a chatbot helping customers with product recommendations. 
       You should only recommend the product that is recommended as assisant message and do not invent something on your own.
       The final answer should contain: the brand name, price, rating, reviews.
+      You should use all products suggested by the assistant in the final answer.
     """
   })
 
@@ -63,16 +67,12 @@ def recommend_product() -> str:
     top_products = [product for product in top_products if min_price <= product["price"] <= max_price]
 
   for product in top_products:
-    print(f"found product: {product["name"]}")
-
-  top_product = top_products[0]
-
-  # Add the top product recommendations to message_objects as assistant messages
-  brand_dict = {
-    "role": "assistant", 
-    "content": f"This is 1 of the recommended product that you will be using in the answer: {top_product}"
-  }
-  message_objects.append(brand_dict)
+    print(f"found product within given price range: {product["name"]}")
+    brand_dict = {
+      "role": "assistant", 
+      "content": f"This is 1 of the recommended product that you will be using in the answer: {product}"
+    }
+    message_objects.append(brand_dict)
 
   completion = client.chat.completions.create(
     messages=message_objects,
@@ -84,7 +84,7 @@ def recommend_product() -> str:
 while True:
   if len(asked_question_indexes) == len(questions):
     recommendation_text = recommend_product()
-    print(f"Here is my recommendation: {recommendation_text}")
+    print(recommendation_text)
     break
 
   for question in questions:
