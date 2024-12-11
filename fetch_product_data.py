@@ -23,6 +23,7 @@ def get_embedding(text):
   return response.data[0].embedding
 
 def find_products_by_query(question: str, top_count: int = 1, relevance_threshold: float = 0.4) -> list[dict]:
+  print(f"Searching for products based on question: {question}")
   vector = get_embedding(question)
   results = product_index.query(
     vector=vector,
@@ -31,15 +32,12 @@ def find_products_by_query(question: str, top_count: int = 1, relevance_threshol
     include_metadata=True
   )
 
-  # Get the size of the results
-  print("matches: ", len(results.get("matches")))
+  print(f"Found {len(results['matches'])} matching products")
 
   # Filter results based on relevance threshold
-  relevant_products = [
-    item['metadata'] for item in results['matches']
-    if cosine_similarity(vector, item['values']) >= relevance_threshold
-  ]
+  # relevant_products = [
+  #   item['metadata'] for item in results['matches']
+  #   if cosine_similarity(vector, item['values']) >= relevance_threshold
+  # ]
 
-  print("relevance: ", len(relevant_products))
-
-  return relevant_products
+  return [item['metadata'] for item in results['matches']]
