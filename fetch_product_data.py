@@ -22,13 +22,14 @@ def get_embedding(text):
 
   return response.data[0].embedding
 
-def find_products_by_query(question: str, top_count: int = 1, relevance_threshold: float = 0.4) -> list[dict]:
-  print(f"Searching for products based on question: {question}")
-  vector = get_embedding(question)
+# TODO: better typing from criteria
+def find_products_by_query(criteria: dict, top_count: int = 1, relevance_threshold: float = 0.4) -> list[dict]:
+  print(f"Searching for products based on question: {criteria}")
+  vector = get_embedding(criteria.get("brand"))
   results = product_index.query(
     vector=vector,
     filter={
-      "brand": "Apple"
+      "brand": criteria.get("brand", "")
     },
     top_k=top_count,
     include_values=True,

@@ -1,5 +1,6 @@
 from openai import OpenAI
 from fetch_product_data import find_products_by_query
+from typing import TypedDict
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,7 +12,20 @@ client = OpenAI()
 
 # Create a list to store message objects
 message_objects = []
-criteria = ""
+
+DEFAULT_MIN_PRICE = 0
+DEFAULT_MAX_PRICE = float('inf')
+
+class Criteria(TypedDict):
+  brand: str
+  min_price: float
+  max_price: float
+
+criteria: Criteria = {
+  "brand": "",
+  "min_price": DEFAULT_MIN_PRICE,
+  "max_price": DEFAULT_MAX_PRICE
+}
 
 # Have a set of questions to ask the user
 questions = [
@@ -26,14 +40,7 @@ questions = [
     "question": "What is your budget?"
   }
 ]
-
-DEFAULT_MIN_PRICE = 0
-DEFAULT_MAX_PRICE = float('inf')
-
 asked_question_indexes = []
-min_price = DEFAULT_MIN_PRICE
-# Max price is infinity
-max_price = DEFAULT_MAX_PRICE
 
 def extract_budget_range(input_text: str):
   match = re.search(r'from (\d+) to (\d+)', input_text)
@@ -58,9 +65,9 @@ def recommend_product() -> str:
   })
 
   # Add the user's initial message
-  message_objects.append({"role": "user", "content": criteria})
+  # message_objects.append({"role": "user", "content": criteria})
 
-  top_products = find_products_by_query(question=criteria, top_count=3)
+  top_products = find_products_by_query(criteria=criteria, top_count=3)
 
   # Filter products based on price range
   if min_price != 0 or max_price != float("inf"):
@@ -96,7 +103,9 @@ while True:
 
       if question["type"] == "price":
         min_price, max_price = extract_budget_range(input(">> "))
+        criteria["min_price"] = min_price
+        criteria["max_price"] = max_price
         break
       
-      criteria += input(">> ")
+      criteria["brand"] = input(">> ")
       break
