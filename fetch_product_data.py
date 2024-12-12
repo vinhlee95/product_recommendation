@@ -5,10 +5,16 @@ from pinecone.grpc import PineconeGRPC as Pinecone
 import os
 from openai import embeddings
 import numpy as np
+from typing import TypedDict
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index_name = "products"
 product_index = pc.Index(index_name)
+
+class Criteria(TypedDict):
+  brand: str
+  min_price: float
+  max_price: float
 
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))

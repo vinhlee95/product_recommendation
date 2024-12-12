@@ -1,5 +1,5 @@
 from openai import OpenAI
-from fetch_product_data import find_products_by_query
+from fetch_product_data import find_products_by_query, Criteria
 from typing import TypedDict
 
 from dotenv import load_dotenv
@@ -15,11 +15,6 @@ message_objects = []
 
 DEFAULT_MIN_PRICE = 0
 DEFAULT_MAX_PRICE = float('inf')
-
-class Criteria(TypedDict):
-  brand: str
-  min_price: float
-  max_price: float
 
 criteria: Criteria = {
   "brand": "",
@@ -73,8 +68,9 @@ def recommend_product() -> str:
   if min_price != 0 or max_price != float("inf"):
     top_products = [product for product in top_products if min_price <= product["price"] <= max_price]
 
+  print(f"Found {len(top_products)} products within given price range")
   for product in top_products:
-    print(f"found product within given price range: {product["name"]}")
+    print(f"{product["name"]}")
     brand_dict = {
       "role": "assistant", 
       "content": f"This is 1 of the recommended product that you will be using in the answer: {product}"
