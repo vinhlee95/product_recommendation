@@ -19,7 +19,8 @@ DEFAULT_MAX_PRICE = float('inf')
 criteria: Criteria = {
   "brand": "",
   "min_price": DEFAULT_MIN_PRICE,
-  "max_price": DEFAULT_MAX_PRICE
+  "max_price": DEFAULT_MAX_PRICE,
+  "free_search": "smartphone"
 }
 
 # Have a set of questions to ask the user

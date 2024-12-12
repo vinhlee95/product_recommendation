@@ -15,6 +15,8 @@ class Criteria(TypedDict):
   brand: str
   min_price: float
   max_price: float
+  # Free text field for search
+  free_search: str
 
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
@@ -31,7 +33,7 @@ def get_embedding(text):
 # TODO: better typing from criteria
 def find_products_by_query(criteria: dict, top_count: int = 1) -> list[dict]:
   print(f"Searching for products based on question: {criteria}")
-  vector = get_embedding(criteria.get("brand"))
+  vector = get_embedding(criteria.get("free_search", ""))
   results = product_index.query(
     vector=vector,
     filter={
