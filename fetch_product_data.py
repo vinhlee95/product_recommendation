@@ -29,7 +29,7 @@ def get_embedding(text):
   return response.data[0].embedding
 
 # TODO: better typing from criteria
-def find_products_by_query(criteria: dict, top_count: int = 1, relevance_threshold: float = 0.4) -> list[dict]:
+def find_products_by_query(criteria: dict, top_count: int = 1) -> list[dict]:
   print(f"Searching for products based on question: {criteria}")
   vector = get_embedding(criteria.get("brand"))
   results = product_index.query(
@@ -45,13 +45,3 @@ def find_products_by_query(criteria: dict, top_count: int = 1, relevance_thresho
   print(f"Found {len(results['matches'])} matching products")
   
   return [item['metadata'] for item in results['matches']]
-
-  # Filter results based on relevance threshold
-  # relevant_products = [
-  #   item['metadata'] for item in results['matches']
-  #   if cosine_similarity(vector, item['values']) >= relevance_threshold
-  # ]
-
-  # print(f"Found {len(relevant_products)} relevant products")
-
-  # return relevant_products
