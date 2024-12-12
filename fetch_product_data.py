@@ -31,7 +31,7 @@ def get_embedding(text):
   return response.data[0].embedding
 
 # TODO: better typing from criteria
-def find_products_by_query(criteria: dict, top_count: int = 1) -> list[dict]:
+def find_products_by_query(criteria: Criteria, top_count: int = 1) -> list[dict]:
   print(f"Searching for products based on question: {criteria}")
   vector = get_embedding(criteria.get("free_search", ""))
   results = product_index.query(
